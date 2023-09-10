@@ -1,2 +1,4 @@
-# computational_geometry
-Computational geometry course
+# Репозиторий курса по вычислительной геометрии
+Содержит 2 лабораторные работы:
++ [Триангуляция многоугольника за O(n^2)](polygon)
++ ...
