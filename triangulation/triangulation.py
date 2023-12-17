@@ -59,12 +59,16 @@ def print_triangle_index(vertices, ignore_start):
 def triangulation(vertices):
     if len(vertices) < 3:
         return
+    i = 0
     while (3 < len(vertices)):
-        for i in range(0, len(vertices)):
-            if check_ear(vertices, i):
-                print_triangle_index(vertices, i)
-                del vertices[(i + 1) % len(vertices)]
-                break
+        if check_ear(vertices, i):
+            print_triangle_index(vertices, i)
+            del vertices[(i + 1) % len(vertices)]
+            i += len(vertices) - 1
+            i = i % len(vertices)
+        else:
+            i += 1
+            i = i % len(vertices)
     print_triangle(vertices)
 
 
