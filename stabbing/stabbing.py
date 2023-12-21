@@ -1,4 +1,5 @@
 from sys import stdin
+from queue import Queue
 
 
 def input():
@@ -29,16 +30,16 @@ def build_tree(triangles):
 def dists(vertice, tree):
     res = [-1 for v in tree]
     res[vertice] = 0
-    was = [vertice]
-    while len(was) > 0:
-        v = was[0]
+    was = Queue()
+    was.put(vertice)
+    while not was.empty():
+        v = was.get()
         dist = res[v]
-        was = was[1:]
         for adjacent_vertice in tree[v]:
             if -1 != res[adjacent_vertice]:
                 continue
             res[adjacent_vertice] = dist + 1
-            was.append(adjacent_vertice)
+            was.put(adjacent_vertice)
     return res
 
 
