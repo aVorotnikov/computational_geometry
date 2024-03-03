@@ -16,14 +16,48 @@ def check_correct(triangles):
     return False
 
 
+def is_neighbour(i, j, triangleNum):
+    if i == triangleNum + 1 and j == 0:
+        return 1
+    if j == triangleNum + 1 and i == 0:
+        return 1
+    if j - i == 1 or i - j == 1:
+        return 1
+    return 0
+
+
+def get_coincidence_expectation(triangle, triangleNum):
+    return 3 - \
+        is_neighbour(triangle[0], triangle[1], triangleNum) - \
+        is_neighbour(triangle[1], triangle[2], triangleNum) - \
+        is_neighbour(triangle[2], triangle[0], triangleNum)
+
+
 def build_tree(triangles):
     res = [[] for triangle in triangles]
+    pool = []
     for i in range(len(triangles)):
-        for j in range(i):
-            coincidence = sum(int(num in triangles[j]) for num in triangles[i])
+        found = 0
+        expectation = get_coincidence_expectation(triangles[i], len(triangles))
+        if expectation == found:
+            continue
+        j = 0
+        while j < len(pool):
+            candidate = pool[j]
+            coincidence = sum(int(num in candidate[0]) for num in triangles[i])
             if 2 == coincidence:
-                res[i].append(j)
-                res[j].append(i)
+                res[i].append(candidate[1])
+                res[candidate[1]].append(i)
+                candidate[3] += 1
+                if candidate[2] == candidate[3]:
+                    del pool[j]
+                    j -= 1
+                found += 1
+                if expectation == found:
+                    break
+            j += 1
+        if expectation != found:
+            pool.append([triangles[i], i, expectation, found])
     return res
 
 
