@@ -5,59 +5,51 @@ from queue import Queue
 def input():
     res = []
     for line in stdin:
-        nums = [int(num) for num in line.strip().split()]
-        res.append((nums[0], nums[1], nums[2]))
+        res.append([int(num) for num in line.strip().split()][1:])
     return res
 
 
-def check_correct(triangles):
-    if max(max(triangle) for triangle in triangles) == len(triangles) + 1:
-        return True
-    return False
+def rotate(diameters):
+    new_start = 0
+    for i in range(len(diameters)):
+        if 0 == len(diameters[i]):
+            new_start = i
+            break
+
+    if new_start == 0:
+        return diameters
+
+    res = []
+    for i in range(len(diameters)):
+        node = []
+        point = (new_start + i) % len(diameters)
+        for j in range(len(diameters[point])):
+            node.append((len(diameters) + diameters[point][j] - new_start) % len(diameters))
+        res.append(node)
+    return res
 
 
-def is_neighbour(i, j, triangleNum):
-    if i == triangleNum + 1 and j == 0:
-        return 1
-    if j == triangleNum + 1 and i == 0:
-        return 1
-    if j - i == 1 or i - j == 1:
-        return 1
-    return 0
+def build_tree(diameters):
+    if 2 >= len(diameters):
+        raise RuntimeError("No polygon")
+    if 3 == len(diameters):
+        return [[]]
 
-
-def get_coincidence_expectation(triangle, triangleNum):
-    return 3 - \
-        is_neighbour(triangle[0], triangle[1], triangleNum) - \
-        is_neighbour(triangle[1], triangle[2], triangleNum) - \
-        is_neighbour(triangle[2], triangle[0], triangleNum)
-
-
-def build_tree(triangles):
-    res = [[] for triangle in triangles]
-    pool = []
-    for i in range(len(triangles)):
-        found = 0
-        expectation = get_coincidence_expectation(triangles[i], len(triangles))
-        if expectation == found:
-            continue
-        j = 0
-        while j < len(pool):
-            candidate = pool[j]
-            coincidence = sum(int(num in candidate[0]) for num in triangles[i])
-            if 2 == coincidence:
-                res[i].append(candidate[1])
-                res[candidate[1]].append(i)
-                candidate[3] += 1
-                if candidate[2] == candidate[3]:
-                    del pool[j]
-                    j -= 1
-                found += 1
-                if expectation == found:
-                    break
-            j += 1
-        if expectation != found:
-            pool.append([triangles[i], i, expectation, found])
+    diameters = rotate(diameters)
+    res = [[] for i in range(len(diameters) - 2)]
+    elder_element = 0
+    status = [0]
+    for i in range(len(diameters)):
+        in_diameters = sum(diameter < i for diameter in diameters[i])
+        for j in range(in_diameters):
+            status.pop()
+        out_diameters = len(diameters[i]) - in_diameters
+        for j in range(out_diameters):
+            elder_element += 1
+            last = status[-1]
+            status.append(elder_element)
+            res[last].append(elder_element)
+            res[elder_element].append(last)
     return res
 
 
@@ -84,10 +76,8 @@ def diameter(tree):
 
 
 def main():
-    triangles = input()
-    if not check_correct(triangles):
-        return
-    tree = build_tree(triangles)
+    diameters = input()
+    tree = build_tree(diameters)
     print(diameter(tree))
 
 
